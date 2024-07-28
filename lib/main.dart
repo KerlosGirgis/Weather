@@ -1,4 +1,3 @@
-import 'dart:ffi';
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
 import 'package:weather/services/weather_service.dart';
@@ -75,15 +74,19 @@ class _WeatherPageState extends State<WeatherPage> {
     return flag;
   }
   Color getBackgroundColor(){
-    if(_weather?.dayNight=="01n"){
-      return Colors.blueGrey;
+
+    try{
+      if(_weather!.dayNight.contains("n",0)){
+        return Colors.blueGrey;
+      }
+      else if(_weather!.dayNight.contains("d",0)){
+        return Colors.cyan;
+      }
     }
-    else if(_weather?.dayNight=="01d"){
+    catch(e){
       return Colors.cyan;
     }
-    else{
-      return Colors.cyan;
-    }
+    return Colors.cyan;
   }
   String getWeatherAnimation(String? mainCondition){
     try{
