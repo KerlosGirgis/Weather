@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
 import 'package:weather/services/weather_service.dart';
 import '../models/weather_model.dart';
-
 void main() {
   runApp(const MyApp());
 }
@@ -30,6 +29,7 @@ class _WeatherPageState extends State<WeatherPage> {
   final _weatherService = WeatherService();
   final searchBarController = TextEditingController();
   Weather? _weather;
+  Color? searchBarCheckIcon;
 
   @override
   void dispose() {
@@ -61,11 +61,15 @@ class _WeatherPageState extends State<WeatherPage> {
       final weather = await _weatherService.getWeatherSearchBar();
       setState(() {
         _weather = weather;
+        searchBarCheckIcon = Colors.green;
       });
       if (kDebugMode) {
         print("state updated");
       }
     } catch (e) {
+      setState(() {
+        searchBarCheckIcon = Colors.red;
+      });
       if (kDebugMode) {
         print(e);
       }
@@ -145,6 +149,7 @@ class _WeatherPageState extends State<WeatherPage> {
   @override
   void initState() {
     _fetchWeather();
+    searchBarCheckIcon = Colors.grey;
     super.initState();
   }
 //_weather?.cityName ?? "loading city"
@@ -159,17 +164,27 @@ class _WeatherPageState extends State<WeatherPage> {
             mainAxisAlignment: MainAxisAlignment.values[5],
             children: [
               SearchBar(trailing: [
+                Icon(Icons.check_circle_outline_sharp,
+                color: searchBarCheckIcon,),
                 IconButton(onPressed: (){
                   _fetchWeatherSearch(searchBarController.text);
-                }, icon: const Icon(Icons.search_sharp))
-              ],controller: searchBarController,),
+                  FocusManager.instance.primaryFocus?.unfocus();
+                }, icon: const Icon(Icons.search_sharp)),
+              ],controller: searchBarController,
+              onSubmitted: (String a){
+                _fetchWeatherSearch(searchBarController.text);
+              },
+                onTapOutside: (PointerDownEvent e){
+                  FocusManager.instance.primaryFocus?.unfocus();
+                },
+              ),
               Text(_weather?.cityName ?? "loading city",style: const TextStyle(fontSize: 48,color: Colors.white),),
               Image.asset(getWeatherAnimation(_weather?.mainCondition),cacheHeight: 170,cacheWidth: 170,),
               Text("${_weather?.temp.round()}°C",style: const TextStyle(fontSize: 48,color: Colors.white),),
               Text(_weather?.mainCondition??"",style: const TextStyle(fontSize: 48,color: Colors.white),),
               IconButton(onPressed:(){
                 _fetchWeather();
-              }, icon: const Icon(Icons.my_location_sharp))
+              }, icon: const Icon(Icons.my_location_sharp),)
             ],
           ),)
 
